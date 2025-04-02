@@ -11,18 +11,20 @@ Este proyecto es una aplicación basada en Spring Boot que permite la detección
 - Swagger para documentación de API
 
 ## Instrucciones de Despliegue
-### 1. Acceder al repositorio en GitHub y descargar el archivo docker-compose.yml
+### 1. Acceder al repositorio en GitHub y descargarlo
 
 https://github.com/VicBoss10/detect.git
  
 
 ### 2. Construir y Levantar los Contenedores
 
-Ejecuta el siguiente comando para construir y ejecutar la aplicación con Docker Compose:
+- Ir a la carpeta principal del proyecto (detect) en esta carpeta debe estar el archivo dockerfile y docker-compose.yml
+- Abrir una terminal en la ubicación y ejecutar el comando:
 
-docker-compose up 
+docker-compose up --build
 
-Esto iniciará:
+
+Esto construirá la api de manera local e iniciará:
 - La base de datos PostgreSQL en el puerto `5432`
 - La aplicación en el puerto `8081`
 
