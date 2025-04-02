@@ -42,12 +42,10 @@ public class AlertController {
                             examples = @ExampleObject(
                                     name = "Ejemplo de alerta",
                                     value = """
-                                        {
-                                          "message": "Error en dispositivo",
-                                          "level": "HIGH",
-                                          "status": "ACTIVE",
-                                          "timestamp": "2025-03-31T12:45:00"
-                                        }
+                                            {
+                                                "level": "INFO",
+                                                "message": "El sistema ha iniciado correctamente"
+                                            }
                                         """
                             )
                     )

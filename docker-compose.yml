@@ -1,10 +1,9 @@
-version: "3.8"
-
 services:
   java_app:
     container_name: java_app
-    image: pee-java-app:1.0.0
-    build: .
+    build:
+      context: .  # Ruta al directorio que contiene tu Dockerfile
+      dockerfile: dockerfile  # Nombre de tu Dockerfile (opcional si se llama "Dockerfile")
     ports:
       - "8081:8081"
     environment:
