@@ -20,7 +20,7 @@ public class Detection {
 
     @ManyToOne
     @JoinColumn(name = "device_id")
-    private Long device_id;
+    private Device device;
 
     @Column(nullable = false)
     private LocalDateTime date;
