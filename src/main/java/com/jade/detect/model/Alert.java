@@ -28,15 +28,15 @@ public class Alert {
 
     @ManyToOne
     @JoinColumn(name = "detection_id")
-    private Long detection_id; // Relación con detección (opcional)
+    private Detection detection; // Relación con detección (opcional)
 
     @ManyToOne
     @JoinColumn(name = "device_id")
-    private Long device_id; // Relación con un dispositivo (opcional)
+    private Device device; // Relación con un dispositivo (opcional)
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private Long user_id; // Usuario responsable (opcional)
+    private User user; // Usuario responsable (opcional)
 
 
 

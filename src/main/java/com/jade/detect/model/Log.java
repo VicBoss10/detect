@@ -26,11 +26,11 @@ public class Log {
 
     @ManyToOne
     @JoinColumn(nullable = false, name = "user_id")
-    private Long user_id; // Usuario que generó el evento
+    private User user; // Usuario que generó el evento
 
     @ManyToOne
     @JoinColumn(nullable = false, name = "device_id")
-    private Long device_id; // Dispositivo relacionado
+    private Device device; // Dispositivo relacionado
 
     public enum LogLevel {
         INFO, WARNING, ERROR
