@@ -13,15 +13,15 @@ public class Device {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long device_id;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 100, unique = true)
     private String name;
 
-    @Column(length = 50)
+    @Column(nullable = false, length = 50)
     private String type;
 
-    @Column(length = 255)
+    @Column(nullable = false, length = 255)
     private String location;
 
     @Enumerated(EnumType.STRING)

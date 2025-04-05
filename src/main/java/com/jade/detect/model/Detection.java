@@ -16,11 +16,14 @@ public class Detection {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long detection_id;
 
-    private String videoSource;
+    @ManyToOne
+    @JoinColumn(name = "device_id")
+    private Long device_id;
 
-    private LocalDateTime timestamp;
+    @Column(nullable = false)
+    private LocalDateTime date;
 
     @JsonManagedReference // Esta es la clave para romper el ciclo
     @OneToMany(mappedBy = "detection", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -28,7 +31,7 @@ public class Detection {
 
     @PrePersist
     protected void onCreate() {
-        timestamp = LocalDateTime.now();
+        date = LocalDateTime.now();
     }
 
     // Método helper para mantener la relación bidireccional

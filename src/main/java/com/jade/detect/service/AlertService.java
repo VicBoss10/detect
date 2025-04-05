@@ -22,9 +22,8 @@ public class AlertService {
         return alertRepository.save(alert);
     }
 
-    public void createAlert(Alert.AlertLevel level, String message) {
+    public void createAlert(  String message) {
         Alert alert = new Alert();
-        alert.setLevel(level);
         alert.setMessage(message);
         alertRepository.save(alert);
     }

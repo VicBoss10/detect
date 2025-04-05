@@ -13,17 +13,14 @@ public class Alert {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long alert_id;
 
     @Column(nullable = false)
-    private LocalDateTime timestamp = LocalDateTime.now(); // Fecha y hora de la alerta
+    private LocalDateTime date = LocalDateTime.now(); // Fecha y hora de la alerta
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = true, length = 500)
     private String message; // Descripción de la alerta
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private AlertLevel level; // Nivel de alerta (INFO, WARNING, CRITICAL)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -31,19 +28,17 @@ public class Alert {
 
     @ManyToOne
     @JoinColumn(name = "detection_id")
-    private Detection detection; // Relación con detección (opcional)
+    private Long detection_id; // Relación con detección (opcional)
 
     @ManyToOne
     @JoinColumn(name = "device_id")
-    private Device device; // Relación con un dispositivo (opcional)
+    private Long device_id; // Relación con un dispositivo (opcional)
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user; // Usuario responsable (opcional)
+    private Long user_id; // Usuario responsable (opcional)
 
-    public enum AlertLevel {
-        INFO, WARNING, CRITICAL
-    }
+
 
     public enum AlertStatus {
         PENDING, RESOLVED
