@@ -9,8 +9,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/devices")
@@ -30,7 +31,7 @@ public class DeviceController {
         return deviceService.getAllDevices();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     @Operation(summary = "Obtener un dispositivo por ID",
             description = "Busca un dispositivo en la base de datos por su ID.")
     public ResponseEntity<Device> getDeviceById(
@@ -40,6 +41,29 @@ public class DeviceController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+    @GetMapping("/devicename/{name}")
+    @Operation(summary = "Obtener dispositivo por nombre",
+            description = "Busca un dispositivo en la base de datos por su nombre.")
+    public ResponseEntity<Device> getDeviceByName(
+            @Parameter(description = "Nombre del dispositivo a buscar", example = "Camara de seguridad")
+            @PathVariable String name) {
+        Optional<Device> device = deviceService.getDeviceByName(name);
+        return device.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+    @GetMapping("/location/{location}")
+    @Operation(summary = "Obtener dispositivos por ubicación",
+            description = "Busca todos los dispositivos en la base de datos que tengan la ubicación especificada.")
+    public ResponseEntity<List<Device>> getDevicesByLocation(
+            @Parameter(description = "Ubicación del dispositivo", example = "Pasto")
+            @PathVariable String location) {
+        List<Device> devices = deviceService.getDevicesByLocation(location);
+        if (devices.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(devices);
+        }
+    }
+
 
     @PostMapping
     @Operation(summary = "Registrar un nuevo dispositivo",
@@ -52,7 +76,7 @@ public class DeviceController {
                                     name = "Ejemplo de dispositivo",
                                     value = """
                                         {
-                                          "name": "Cámara de seguridad",
+                                          "name": "Camara de seguridad",
                                           "type": "Cámara IP",
                                           "location": "Oficina principal",
                                           "status": "ACTIVE"
@@ -65,6 +89,35 @@ public class DeviceController {
     public Device createDevice(@RequestBody Device device) {
         return deviceService.createDevice(device);
     }
+
+    @PatchMapping("/{id}")
+    @Operation(summary = "Actualizar parcialmente un dispositivo por ID",
+            description = "Actualiza uno o varios campos de un dispositivo dado su ID.")
+    public ResponseEntity<Device> updateDevice(
+            @Parameter(description = "ID del dispositivo a actualizar", example = "1")
+            @PathVariable Long id,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Campos del dispositivo a actualizar",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "Actualizar estado y ubicación",
+                                    value = """
+                            {
+                              "location": "Pasto",
+                              "status": "INACTIVE"
+                            }
+                            """
+                            )
+                    )
+            )
+            @RequestBody Map<String, Object> updates) {
+        Optional<Device> updatedDevice = deviceService.updateDevicePartial(id, updates);
+        return updatedDevice.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar un dispositivo",

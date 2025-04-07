@@ -16,9 +16,14 @@ public class Detection {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long detection_id;
 
-    private LocalDateTime timestamp;
+    @ManyToOne
+    @JoinColumn(name = "device_id")
+    private Device device;
+
+    @Column(nullable = false)
+    private LocalDateTime date;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "device_id", nullable = false)
@@ -30,7 +35,7 @@ public class Detection {
 
     @PrePersist
     protected void onCreate() {
-        timestamp = LocalDateTime.now();
+        date = LocalDateTime.now();
     }
 
     // Método helper para mantener la relación bidireccional

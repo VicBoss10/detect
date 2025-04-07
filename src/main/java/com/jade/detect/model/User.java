@@ -1,4 +1,6 @@
 package com.jade.detect.model;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +14,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long user_id;
 
     @Column(nullable = false, unique = true, length = 50)
     private String username;
@@ -25,8 +27,11 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+
+
+    @Schema(implementation = Role.class)
     private Role role;
-    private enum Role {
-         ADMIN, USER
+    public enum Role {
+        ADMIN, USER
     }
 }

@@ -1,5 +1,6 @@
 package com.jade.detect.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,22 +14,25 @@ public class Device {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long device_id;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 100, unique = true)
     private String name;
 
-    @Column(length = 50)
+    @Column(nullable = false, length = 50)
     private String type;
 
-    @Column(length = 255)
+    @Column(nullable = false, length = 255)
     private String location;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Schema(implementation = DeviceStatus.class)
     private DeviceStatus status;
-    private enum DeviceStatus {
+    public enum DeviceStatus {
         ACTIVE, INACTIVE
     }
+
+
 
 }

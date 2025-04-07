@@ -13,7 +13,7 @@ public class DetectedObject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long detectedObject_id;
 
     @JsonBackReference // Esta es la clave para romper el ciclo
     @ManyToOne(fetch = FetchType.LAZY)

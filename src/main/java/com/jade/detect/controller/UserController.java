@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -31,13 +30,23 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     @Operation(summary = "Obtener usuario por ID",
             description = "Busca un usuario en la base de datos por su ID.")
     public ResponseEntity<User> getUserById(
             @Parameter(description = "ID del usuario a buscar", example = "1")
             @PathVariable Long id) {
         Optional<User> user = userService.getUserById(id);
+        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/username/{username}")
+    @Operation(summary = "Obtener usuario por nombre",
+            description = "Busca un usuario en la base de datos por su nombre.")
+    public ResponseEntity<User> getUserByName(
+            @Parameter(description = "Nombre del usuario a buscar", example = "Dylan Cadena")
+            @PathVariable String username) {
+        Optional<User> user = userService.getUserByName(username);
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -65,6 +74,18 @@ public class UserController {
     public User addUser(@RequestBody User user) {
         return userService.createUser(user);
     }
+
+    @PatchMapping("/{id}")
+    @Operation(summary = "Actualizar un usuario por ID",
+            description = "Permite actualizar uno o más campos del usuario usando su ID.")
+    public ResponseEntity<User> updateUser(
+            @Parameter(description = "ID del usuario a actualizar", example = "1")
+            @PathVariable Long id,
+            @RequestBody User partialUser) {
+        Optional<User> updatedUser = userService.updateUser(id, partialUser);
+        return updatedUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar un usuario",
