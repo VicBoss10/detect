@@ -7,8 +7,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -23,8 +26,12 @@ public class DetectionController {
     @GetMapping
     @Operation(summary = "Obtener las detecciones",
             description = "Devuelve una lista con todas las detecciones registrados y los objetos detectados en cada detección.")
-    public List<Detection> getAllDetections() {
-        return detectionService.getAllDetections();
+    public ResponseEntity<List<Detection>> getAllDetections() {
+        List<Detection> detections = detectionService.getAllDetections();
+        if (detections.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(detections, HttpStatus.OK);
     }
 
     @PostMapping
@@ -38,7 +45,7 @@ public class DetectionController {
                                     name = "Ejemplo de detección",
                                     value = """
                                             {
-                                                "videoSource": "camara_1",
+                                                "device": { "id": 1 },                                        
                                                 "detectedObjects": [
                                                     {
                                                         "label": "Persona",
@@ -64,8 +71,12 @@ public class DetectionController {
             )
     )
     public ResponseEntity<Detection> saveDetection(@RequestBody Detection detection) {
-        Detection savedDetection = detectionService.saveDetection(detection);
-        return ResponseEntity.ok(savedDetection);
+        try {
+            Detection savedDetection = detectionService.saveDetection(detection);
+            return new ResponseEntity<>(savedDetection, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/{id}")
@@ -75,8 +86,8 @@ public class DetectionController {
             @Parameter(description = "ID de la detección a buscar", example = "1")
             @PathVariable Long id) {
         return detectionService.getDetectionById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .map(detection -> new ResponseEntity<>(detection, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping("/{id}")
@@ -85,7 +96,27 @@ public class DetectionController {
     public ResponseEntity<Void> deleteDetection(
             @Parameter(description = "Id de la detección a eliminar", example = "1")
             @PathVariable Long id) {
-        detectionService.deleteDetection(id);
-        return ResponseEntity.noContent().build();
+        try {
+            if (detectionService.getDetectionById(id).isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            detectionService.deleteDetection(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/device/{deviceId}")
+    @Operation(summary = "Obtener detecciones por ID de dispositivo",
+            description = "Devuelve todas las detecciones realizadas por un dispositivo específico.")
+    public ResponseEntity<List<Detection>> getDetectionsByDeviceId(
+            @Parameter(description = "ID del dispositivo", example = "1")
+            @PathVariable Long deviceId) {
+        List<Detection> detections = detectionService.getDetectionsByDeviceId(deviceId);
+        if (detections.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(detections, HttpStatus.OK);
     }
 }
