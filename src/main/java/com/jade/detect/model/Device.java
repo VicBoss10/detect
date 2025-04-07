@@ -1,5 +1,6 @@
 package com.jade.detect.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,9 +27,12 @@ public class Device {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Schema(implementation = DeviceStatus.class)
     private DeviceStatus status;
-    private enum DeviceStatus {
+    public enum DeviceStatus {
         ACTIVE, INACTIVE
     }
+
+
 
 }
