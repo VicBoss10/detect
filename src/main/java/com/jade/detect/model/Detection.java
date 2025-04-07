@@ -18,9 +18,11 @@ public class Detection {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String videoSource;
-
     private LocalDateTime timestamp;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "device_id", nullable = false)
+    private Device device;
 
     @JsonManagedReference // Esta es la clave para romper el ciclo
     @OneToMany(mappedBy = "detection", cascade = CascadeType.ALL, orphanRemoval = true)

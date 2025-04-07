@@ -1,9 +1,7 @@
 package com.jade.detect.service;
 
-import aj.org.objectweb.asm.commons.Remapper;
 import com.jade.detect.model.DetectedObject;
 import com.jade.detect.model.Detection;
-import com.jade.detect.model.Device;
 import com.jade.detect.repository.DetectionRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,4 +35,8 @@ public class DetectionService {
     public Optional<Detection> getDetectionById(Long id) {return detectionRepository.findById(id);}
 
     public void deleteDetection(Long id) {detectionRepository.deleteById(id);}
+
+    public List<Detection> getDetectionsByDeviceId(Long deviceId) {
+        return detectionRepository.findByDeviceId(deviceId);
+    }
 }
