@@ -1,46 +1,66 @@
-
 package com.jade.detect.model;
+
 import jakarta.persistence.*;
-
-import lombok.Data;
-
 import java.time.LocalDateTime;
 
-@Data
 @Entity
-@Table(name = "alerts")
 public class Alert {
+
+    public enum AlertStatus {
+        PENDING,
+        RESOLVED
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private LocalDateTime date = LocalDateTime.now(); // Fecha y hora de la alerta
+    private String message;
 
-    @Column(nullable = true, length = 500)
-    private String message; // Descripción de la alerta
-
+    private String level; // Asegúrate de que este campo exista
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private AlertStatus status = AlertStatus.PENDING; // Estado de la alerta
+    private AlertStatus status = AlertStatus.PENDING;
 
-    @ManyToOne
-    @JoinColumn(name = "detection_id")
-    private Detection detection; // Relación con detección (opcional)
+    private LocalDateTime timestamp = LocalDateTime.now();
 
-    @ManyToOne
-    @JoinColumn(name = "device_id")
-    private Device device; // Relación con un dispositivo (opcional)
+    // Constructor por defecto
+    public Alert() {}
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user; // Usuario responsable (opcional)
+    // Getters y setters
+    public Long getId() {
+        return id;
+    }
 
+    public String getMessage() {
+        return message;
+    }
 
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
-    public enum AlertStatus {
-        PENDING, RESOLVED
+    public String getLevel() { // 👈 ESTE getter es necesario
+        return level;
+    }
+
+    public void setLevel(String level) { // 👈 También el setter
+        this.level = level;
+    }
+
+    public AlertStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AlertStatus status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
     }
 }

@@ -1,15 +1,18 @@
 package com.jade.detect.controller;
 
 import com.jade.detect.model.Alert;
+import com.jade.detect.model.Alert.AlertStatus;
 import com.jade.detect.service.AlertService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/alerts")
@@ -23,12 +26,17 @@ public class AlertController {
     }
 
     @GetMapping
-    @Operation(
-            summary = "Obtener todas las alertas",
-            description = "Devuelve una lista con todas las alertas registradas en el sistema."
-    )
+    @Operation(summary = "Obtener todas las alertas", description = "Devuelve la lista de alertas registradas.")
     public List<Alert> getAllAlerts() {
         return alertService.getAllAlerts();
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Obtener una alerta por ID", description = "Recupera una alerta específica por su ID.")
+    public ResponseEntity<Alert> getAlertById(
+            @Parameter(description = "ID de la alerta", example = "1") @PathVariable Long id) {
+        Optional<Alert> alert = alertService.getAlertById(id);
+        return alert.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
@@ -36,17 +44,17 @@ public class AlertController {
             summary = "Registrar una nueva alerta",
             description = "Crea una nueva alerta en el sistema.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Alerta a registrar",
+                    description = "Datos de la alerta a registrar",
                     content = @Content(
                             mediaType = "application/json",
                             examples = @ExampleObject(
                                     name = "Ejemplo de alerta",
                                     value = """
                                             {
-                                                "level": "INFO",
-                                                "message": "El sistema ha iniciado correctamente"
+                                              "level": "INFO",
+                                              "message": "El sistema ha iniciado correctamente"
                                             }
-                                        """
+                                            """
                             )
                     )
             )
@@ -56,12 +64,27 @@ public class AlertController {
     }
 
     @PutMapping("/{id}/resolve")
-    @Operation(
-            summary = "Resolver una alerta",
-            description = "Marca la alerta especificada como resuelta por su ID."
-    )
-    public void resolveAlert(@Parameter(description = "ID de la alerta a resolver", example = "1")
-                             @PathVariable Long id) {
+    @Operation(summary = "Resolver una alerta", description = "Marca una alerta como resuelta por su ID.")
+    public ResponseEntity<Void> resolveAlert(
+            @Parameter(description = "ID de la alerta", example = "1") @PathVariable Long id) {
         alertService.resolveAlert(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}")
+    @Operation(summary = "Actualizar una alerta parcialmente", description = "Permite actualizar uno o más campos de la alerta por su ID.")
+    public ResponseEntity<Alert> updateAlert(
+            @Parameter(description = "ID de la alerta a actualizar", example = "1") @PathVariable Long id,
+            @RequestBody Alert partialAlert) {
+        Optional<Alert> updatedAlert = alertService.updateAlert(id, partialAlert);
+        return updatedAlert.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Eliminar una alerta", description = "Elimina una alerta del sistema por su ID.")
+    public ResponseEntity<Void> deleteAlert(
+            @Parameter(description = "ID de la alerta a eliminar", example = "1") @PathVariable Long id) {
+        alertService.deleteAlert(id);
+        return ResponseEntity.noContent().build();
     }
 }
