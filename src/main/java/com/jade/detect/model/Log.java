@@ -12,7 +12,7 @@ public class Log {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long log_id;
+    private Long id;
 
     @Column(nullable = false)
     private LocalDateTime date = LocalDateTime.now(); // Guarda la fecha y hora del log

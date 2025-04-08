@@ -13,7 +13,7 @@ public class Alert {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long alert_id;
+    private Long id;
 
     @Column(nullable = false)
     private LocalDateTime date = LocalDateTime.now(); // Fecha y hora de la alerta
