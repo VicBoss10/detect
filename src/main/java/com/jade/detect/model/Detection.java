@@ -16,11 +16,7 @@ public class Detection {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long detection_id;
-
-    @ManyToOne
-    @JoinColumn(name = "device_id")
-    private Device device;
+    private Long id;
 
     @Column(nullable = false)
     private LocalDateTime date;
