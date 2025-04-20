@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   java_app:
     container_name: java_app
@@ -53,10 +55,13 @@ services:
       - KC_DB_PASSWORD=keycloakpass
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
       - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+      - KEYCLOAK_IMPORT=/opt/keycloak/data/import/detec-realm-realm.json
     ports:
       - "8080:8080"
     depends_on:
       - keycloak_db
+    volumes:
+      - ./keycloak-export:/opt/keycloak/data/import
     networks:
       - backend
 
