@@ -1,23 +1,30 @@
 package com.jade.detect.controller;
 
 import com.jade.detect.model.User;
+import com.jade.detect.service.IKeyCloakService;
 import com.jade.detect.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+
 @RestController
 @RequestMapping("/users")
+@PreAuthorize("hasRole('admin_client_role')")
 @Tag(name = "Usuarios", description = "Gestión de usuarios en el sistema")
 public class UserController {
 
     private final UserService userService;
+    @Autowired
+    private IKeyCloakService keyCloakService;
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -26,9 +33,12 @@ public class UserController {
     @GetMapping
     @Operation(summary = "Obtener todos los usuarios",
             description = "Recupera la lista de todos los usuarios registrados en el sistema.")
-    public List<User> getUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<?> getUsers(){
+        return ResponseEntity.ok(keyCloakService.findAllUsers());
     }
+//    public List<User> getUsers() {
+//        return userService.getAllUsers();
+//    }
 
     @GetMapping("/id/{id}")
     @Operation(summary = "Obtener usuario por ID",
