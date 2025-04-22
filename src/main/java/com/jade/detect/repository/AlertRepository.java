@@ -15,3 +15,4 @@ public interface AlertRepository extends JpaRepository<Alert, Long> {
     // Buscar alertas por estado
     List<Alert> findByStatus(Alert.AlertStatus status);
 }
+//////
