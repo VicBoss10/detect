@@ -1,4 +1,4 @@
-package com.jade.detect.controller.dto;
+package com.jade.detect.model;
 
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;

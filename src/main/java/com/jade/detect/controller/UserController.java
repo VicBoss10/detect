@@ -1,21 +1,25 @@
 package com.jade.detect.controller;
 
+import com.jade.detect.model.UserDTO;
 import com.jade.detect.model.User;
-import com.jade.detect.service.IKeyCloakService;
+import com.jade.detect.repository.IKeyCloakRepository;
 import com.jade.detect.service.UserService;
+import com.jade.detect.util.UserAdapter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
+import jakarta.ws.rs.NotFoundException;
+import lombok.extern.slf4j.Slf4j;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Optional;
 
-
+@Slf4j
 @RestController
 @RequestMapping("/users")
 @PreAuthorize("hasRole('admin_client_role')")
@@ -23,87 +27,112 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
-    @Autowired
-    private IKeyCloakService keyCloakService;
+    private final IKeyCloakRepository keyCloakService;
 
-    public UserController(UserService userService) {
+    @Autowired
+    public UserController(UserService userService, IKeyCloakRepository keyCloakService) {
         this.userService = userService;
+        this.keyCloakService = keyCloakService;
     }
 
     @GetMapping
-    @Operation(summary = "Obtener todos los usuarios",
-            description = "Recupera la lista de todos los usuarios registrados en el sistema.")
-    public ResponseEntity<?> getUsers(){
+    @Operation(summary = "Obtener todos los usuarios de Keycloak")
+    public ResponseEntity<List<UserRepresentation>> getUsers() {
         return ResponseEntity.ok(keyCloakService.findAllUsers());
     }
-//    public List<User> getUsers() {
-//        return userService.getAllUsers();
-//    }
 
     @GetMapping("/id/{id}")
-    @Operation(summary = "Obtener usuario por ID",
-            description = "Busca un usuario en la base de datos por su ID.")
-    public ResponseEntity<User> getUserById(
-            @Parameter(description = "ID del usuario a buscar", example = "1")
-            @PathVariable Long id) {
-        Optional<User> user = userService.getUserById(id);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    @Operation(summary = "Buscar usuario por ID de Keycloak")
+    public ResponseEntity<UserRepresentation> getUserById(
+            @Parameter(description = "ID del usuario en Keycloak", example = "f3a9322c-bb54-4b15-bd3a-1f0ac896d555")
+            @PathVariable String id) {
+
+        try {
+            UserRepresentation user = keyCloakService.findUserById(id);
+            return ResponseEntity.ok(user);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(404).body(null);
+        }
     }
 
     @GetMapping("/username/{username}")
-    @Operation(summary = "Obtener usuario por nombre",
-            description = "Busca un usuario en la base de datos por su nombre.")
-    public ResponseEntity<User> getUserByName(
-            @Parameter(description = "Nombre del usuario a buscar", example = "Dylan Cadena")
+    @Operation(summary = "Buscar usuario por username")
+    public ResponseEntity<List<UserRepresentation>> getUserByUsername(
+            @Parameter(description = "Username del usuario a buscar", example = "dylan.cadena")
             @PathVariable String username) {
-        Optional<User> user = userService.getUserByName(username);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        List<UserRepresentation> users = keyCloakService.searchUserByUsername(username);
+        return users.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(users);
     }
 
     @PostMapping
-    @Operation(summary = "Agregar un nuevo usuario",
-            description = "Crea y guarda un nuevo usuario en el sistema.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Datos del usuario a registrar",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    name = "Ejemplo de usuario",
-                                    value = """
-                                        {
-                                          "username": "Juan Pérez",
-                                          "email": "juan.perez@example.com",
-                                          "role": "USER",
-                                          "password": "123456"
-                                        }
-                                        """
-                            )
-                    )
-            )
-    )
-    public User addUser(@RequestBody User user) {
-        return userService.createUser(user);
+    @Operation(summary = "Crear nuevo usuario (Keycloak + Local)")
+    public ResponseEntity<String> createUser(@RequestBody UserDTO dto) {
+        String result = keyCloakService.createUser(dto);
+
+        if (result.contains("Correctamente")) {
+            List<UserRepresentation> keycloakUsers = keyCloakService.searchUserByUsername(dto.getUsername());
+
+            if (!keycloakUsers.isEmpty()) {
+
+                String id = keycloakUsers.get(0).getId();
+                User user = UserAdapter.fromDTOToUser(dto, id);
+                userService.createUser(user);
+
+            }
+        }
+        return ResponseEntity.ok(result);
     }
 
-    @PatchMapping("/{id}")
-    @Operation(summary = "Actualizar un usuario por ID",
-            description = "Permite actualizar uno o más campos del usuario usando su ID.")
-    public ResponseEntity<User> updateUser(
-            @Parameter(description = "ID del usuario a actualizar", example = "1")
-            @PathVariable Long id,
-            @RequestBody User partialUser) {
-        Optional<User> updatedUser = userService.updateUser(id, partialUser);
-        return updatedUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+
+
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Actualizar usuario en Keycloak y en la base de datos local")
+    public ResponseEntity<String> updateUser(
+            @PathVariable String id,
+            @RequestBody UserDTO userDTO) {
+
+        // Primero, actualizamos el usuario en Keycloak
+        try {
+            keyCloakService.updateUser(id, userDTO);  // Llamamos al servicio de Keycloak para actualizar
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al actualizar el usuario en Keycloak: " + e.getMessage());
+        }
+
+        // Luego, actualizamos la base de datos local
+        Optional<User> existingUser = userService.getUserById(id);  // Buscamos el usuario en la base de datos local
+        if (existingUser.isPresent()) {
+            // Convertimos el DTO en un objeto User
+            User updatedUser = UserAdapter.fromDTOToUser(userDTO, id);
+
+            // Actualizamos el usuario en la base de datos local
+            userService.updateUser(id, updatedUser);  // Actualizamos el usuario con los datos del DTO
+            return ResponseEntity.ok("Usuario actualizado correctamente");
+        } else {
+            return ResponseEntity.status(404).body("Usuario no encontrado en la base de datos local");
+        }
     }
+
+
 
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar un usuario",
-            description = "Elimina un usuario del sistema por su ID.")
-    public ResponseEntity<Void> deleteUser(
-            @Parameter(description = "ID del usuario a eliminar", example = "1")
-            @PathVariable Long id) {
+    @Operation(summary = "Eliminar usuario (Keycloak + Local)")
+    public ResponseEntity<String> deleteUser(
+            @Parameter(description = "ID del usuario local", example = "1")
+            @PathVariable String id) {
+
+        Optional<User> userOptional = userService.getUserById(id);
+        if (userOptional.isEmpty()) return ResponseEntity.notFound().build();
+
+        User user = userOptional.get();
+        try {
+            keyCloakService.deleteUser(id); // Asegúrate que `User` tenga `keycloakId`
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(404).body("Usuario no encontrado en Keycloak");
+        }
+
         userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Usuario eliminado correctamente");
     }
 }

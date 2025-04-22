@@ -18,7 +18,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public Optional<User> getUserById(Long id) {
+    public Optional<User> getUserById(String id) {
         return userRepository.findById(id);
     }
 
@@ -30,19 +30,26 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public Optional<User> updateUser(Long id, User partialUser) {
+    public Optional<User> updateUser(String id, User partialUser) {
         return userRepository.findById(id).map(existingUser -> {
+            // Actualizar los campos que no sean nulos en el UserDTO
             if (partialUser.getUsername() != null) {
                 existingUser.setUsername(partialUser.getUsername());
             }
             if (partialUser.getEmail() != null) {
                 existingUser.setEmail(partialUser.getEmail());
             }
-            return userRepository.save(existingUser);
+            if (partialUser.getPassword() != null) {
+                existingUser.setPassword(partialUser.getPassword());  // Se actualiza la contraseña
+            }
+            if (partialUser.getRole() != null) {
+                existingUser.setRole(partialUser.getRole());  // Se actualiza el rol (puede ser 'USER' o 'ADMIN')
+            }
+            return userRepository.save(existingUser);  // Guardamos los cambios en la base de datos
         });
     }
 
-    public void deleteUser(Long id) {
+    public void deleteUser(String id) {
         userRepository.deleteById(id);
     }
 }
