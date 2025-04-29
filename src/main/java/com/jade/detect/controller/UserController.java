@@ -37,12 +37,14 @@ public class UserController {
 
     @GetMapping
     @Operation(summary = "Obtener todos los usuarios de Keycloak")
+    @PreAuthorize("hasRole('admin_client_role')")
     public ResponseEntity<List<UserRepresentation>> getUsers() {
         return ResponseEntity.ok(keyCloakService.findAllUsers());
     }
 
     @GetMapping("/id/{id}")
     @Operation(summary = "Buscar usuario por ID de Keycloak")
+    @PreAuthorize("hasRole('admin_client_role')")
     public ResponseEntity<UserRepresentation> getUserById(
             @Parameter(description = "ID del usuario en Keycloak", example = "f3a9322c-bb54-4b15-bd3a-1f0ac896d555")
             @PathVariable String id) {
@@ -57,6 +59,7 @@ public class UserController {
 
     @GetMapping("/username/{username}")
     @Operation(summary = "Buscar usuario por username")
+    @PreAuthorize("hasRole('admin_client_role')")
     public ResponseEntity<List<UserRepresentation>> getUserByUsername(
             @Parameter(description = "Username del usuario a buscar", example = "dylan.cadena")
             @PathVariable String username) {
@@ -66,6 +69,7 @@ public class UserController {
 
     @PostMapping
     @Operation(summary = "Crear nuevo usuario (Keycloak + Local)")
+    @PreAuthorize("hasRole('admin_client_role')")
     public ResponseEntity<String> createUser(@RequestBody UserDTO dto) {
         String result = keyCloakService.createUser(dto);
 
@@ -88,6 +92,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar usuario en Keycloak y en la base de datos local")
+    @PreAuthorize("hasRole('admin_client_role')")
     public ResponseEntity<String> updateUser(
             @PathVariable String id,
             @RequestBody UserDTO userDTO) {
@@ -118,6 +123,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar usuario (Keycloak + Local)")
+    @PreAuthorize("hasRole('admin_client_role')")
     public ResponseEntity<String> deleteUser(
             @Parameter(description = "ID del usuario local", example = "1")
             @PathVariable String id) {
