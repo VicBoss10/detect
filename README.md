@@ -9,7 +9,6 @@ Este proyecto es una aplicación basada en Spring Boot que permite la detección
 - PostgreSQL 17
 - Docker y Docker Compose
 - Swagger para documentación de API
-- KeyCloak para controlar el acceso a la API
 
 ## Instrucciones de Despliegue
 ### 1. Acceder al repositorio en GitHub y descargarlo

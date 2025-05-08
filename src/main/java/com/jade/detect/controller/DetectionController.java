@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -27,7 +26,6 @@ public class DetectionController {
     @GetMapping
     @Operation(summary = "Obtener las detecciones",
             description = "Devuelve una lista con todas las detecciones registrados y los objetos detectados en cada detección.")
-    @PreAuthorize("hasRole('user_client_role') or hasRole('admin_client_role')")
     public ResponseEntity<List<Detection>> getAllDetections() {
         List<Detection> detections = detectionService.getAllDetections();
         if (detections.isEmpty()) {
@@ -72,7 +70,6 @@ public class DetectionController {
                     )
             )
     )
-    @PreAuthorize("hasRole('user_client_role') or hasRole('admin_client_role')")
     public ResponseEntity<Detection> saveDetection(@RequestBody Detection detection) {
         try {
             Detection savedDetection = detectionService.saveDetection(detection);
@@ -85,7 +82,6 @@ public class DetectionController {
     @GetMapping("/{id}")
     @Operation(summary = "Obtener una detección por ID",
             description = "Busca una detección en la base de datos por su Id.")
-    @PreAuthorize("hasRole('user_client_role') or hasRole('admin_client_role')")
     public ResponseEntity<Detection> getDetectionById(
             @Parameter(description = "ID de la detección a buscar", example = "1")
             @PathVariable Long id) {
@@ -97,7 +93,6 @@ public class DetectionController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar una detección",
             description = "Elimina una detección por su Id si existe en la base de datos.")
-    @PreAuthorize("hasRole('user_client_role') or hasRole('admin_client_role')")
     public ResponseEntity<Void> deleteDetection(
             @Parameter(description = "Id de la detección a eliminar", example = "1")
             @PathVariable Long id) {
@@ -115,7 +110,6 @@ public class DetectionController {
     @GetMapping("/device/{deviceId}")
     @Operation(summary = "Obtener detecciones por ID de dispositivo",
             description = "Devuelve todas las detecciones realizadas por un dispositivo específico.")
-    @PreAuthorize("hasRole('user_client_role') or hasRole('admin_client_role')")
     public ResponseEntity<List<Detection>> getDetectionsByDeviceId(
             @Parameter(description = "ID del dispositivo", example = "1")
             @PathVariable Long deviceId) {

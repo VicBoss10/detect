@@ -32,4 +32,3 @@ public class LogService {
         logRepository.deleteById(id);
     }
 }
-///////////

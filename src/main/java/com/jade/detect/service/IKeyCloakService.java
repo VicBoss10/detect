@@ -1,17 +1,15 @@
-package com.jade.detect.repository;
+package com.jade.detect.service;
 
-import com.jade.detect.model.UserDTO;
+import com.jade.detect.controller.dto.UserDTO;
 import org.keycloak.representations.idm.UserRepresentation;
 
 import java.util.List;
 
-public interface IKeyCloakRepository {
+public interface IKeyCloakService {
 
     List<UserRepresentation> findAllUsers();
     List<UserRepresentation> searchUserByUsername(String username);
     String createUser(UserDTO userDTO);
     void deleteUser (String userId);
     void updateUser (String userId, UserDTO userDTO);
-    UserRepresentation findUserById(String keycloakId);
-
 }

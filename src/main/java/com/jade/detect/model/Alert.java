@@ -64,4 +64,3 @@ public class Alert {
         this.timestamp = timestamp;
     }
 }
-/////////

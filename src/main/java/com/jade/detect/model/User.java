@@ -13,8 +13,8 @@ import lombok.*;
 public class User {
 
     @Id
-    @Column(name = "id", nullable = true, unique = true, length = 36)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false, unique = true, length = 50)
     private String username;
@@ -27,10 +27,10 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+
+
     @Schema(implementation = Role.class)
     private Role role;
-
-
     public enum Role {
         ADMIN, USER
     }

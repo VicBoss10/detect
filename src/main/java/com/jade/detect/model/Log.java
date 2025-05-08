@@ -36,4 +36,3 @@ public class Log {
         INFO, WARNING, ERROR
     }
 }
-////////
