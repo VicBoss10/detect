@@ -1,8 +1,9 @@
-package com.jade.detect.service.impl;
+package com.jade.detect.service;
 
-import com.jade.detect.controller.dto.UserDTO;
-import com.jade.detect.service.IKeyCloakService;
+import com.jade.detect.model.UserDTO;
+import com.jade.detect.repository.IKeyCloakRepository;
 import com.jade.detect.util.KeyCloakProvider;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,6 @@ import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,7 +23,7 @@ import java.util.List;
 @Service
 @Slf4j
 
-public class KeyCloakServiceImpl implements IKeyCloakService {
+public class KeyCloakService implements IKeyCloakRepository {
 
     /**
      * Metodo para listar todos los usuarios de KeyCloak
@@ -103,6 +103,8 @@ public class KeyCloakServiceImpl implements IKeyCloakService {
                     .add(roleRepresentations);
 
             return "Usuario Creado Correctamente";
+            //return userId; // en lugar de "Usuario Creado Correctamente"
+
         }else if (status == 409){
             log.error(("User exist already"));
             return "El Usuario ya existe";
@@ -145,5 +147,17 @@ public class KeyCloakServiceImpl implements IKeyCloakService {
         UserResource usersResource = KeyCloakProvider.getUserResource().get(userId);
         usersResource.update(userRepresentation);
 
+    }
+
+    @Override
+    public UserRepresentation findUserById(String id) {
+        try {
+            return KeyCloakProvider.getUserResource()
+                    .get(id)
+                    .toRepresentation();
+        } catch (Exception e) {
+            log.error("No se pudo obtener el usuario con ID: {}", id, e);
+            throw new NotFoundException("Usuario no encontrado en Keycloak");
+        }
     }
 }
