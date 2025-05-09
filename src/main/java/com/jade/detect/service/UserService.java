@@ -39,9 +39,6 @@ public class UserService {
             if (partialUser.getEmail() != null) {
                 existingUser.setEmail(partialUser.getEmail());
             }
-            if (partialUser.getPassword() != null) {
-                existingUser.setPassword(partialUser.getPassword());  // Se actualiza la contraseña
-            }
             if (partialUser.getRole() != null) {
                 existingUser.setRole(partialUser.getRole());  // Se actualiza el rol (puede ser 'USER' o 'ADMIN')
             }

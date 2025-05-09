@@ -15,7 +15,6 @@ public class UserAdapter {
                 id,
                 dto.getUsername(),
                 dto.getEmail(),
-                dto.getPassword(),
                 role
         );
     }
