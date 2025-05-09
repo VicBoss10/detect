@@ -22,9 +22,6 @@ public class User {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(nullable = false, length = 255)
-    private String password;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Schema(implementation = Role.class)
