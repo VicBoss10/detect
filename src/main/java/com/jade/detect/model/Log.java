@@ -24,16 +24,7 @@ public class Log {
     @Column(nullable = true, length = 500)
     private String message; // Descripción del evento
 
-    @ManyToOne
-    @JoinColumn(nullable = false, name = "user_id")
-    private User user; // Usuario que generó el evento
-
-    @ManyToOne
-    @JoinColumn(nullable = false, name = "device_id")
-    private Device device; // Dispositivo relacionado
-
     public enum LogLevel {
         INFO, WARNING, ERROR
     }
 }
-////////
