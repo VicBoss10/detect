@@ -75,22 +75,26 @@ public class UserController {
 
     @PostMapping
     @Operation(summary = "Crear nuevo usuario (Keycloak + Local)")
-    public ResponseEntity<String> createUser(@RequestBody UserDTO dto) {
+    public ResponseEntity<?> createUser(@RequestBody UserDTO dto) {
         String result = keyCloakService.createUser(dto);
 
+        String id = null;
         if (result.contains("Correctamente")) {
             List<UserRepresentation> keycloakUsers = keyCloakService.searchUserByUsername(dto.getUsername());
-
             if (!keycloakUsers.isEmpty()) {
-                String id = keycloakUsers.get(0).getId();
+                id = keycloakUsers.get(0).getId();
                 User user = UserAdapter.fromDTOToUser(dto, id);
                 userService.createUser(user);
-
                 registrarLog(Log.LogLevel.INFO, "Usuario creado exitosamente: " + user.getUsername());
             }
         }
 
-        return ResponseEntity.ok(result);
+        // Devuelve tanto el mensaje como el id (si existe)
+        return ResponseEntity.ok(
+            id != null
+                ? java.util.Map.of("message", result, "id", id)
+                : java.util.Map.of("message", result)
+        );
     }
 
     @PutMapping("/{id}")
@@ -138,6 +142,17 @@ public class UserController {
         userService.deleteUser(id);
 
         return ResponseEntity.ok("Usuario eliminado correctamente");
+    }
+
+    @PostMapping("/{id}/send-verify-email")
+    @Operation(summary = "Enviar correo de verificación a un usuario de Keycloak")
+    public ResponseEntity<String> sendVerificationEmail(@PathVariable String id) {
+        try {
+            keyCloakService.sendVerificationEmail(id);
+            return ResponseEntity.ok("Correo de verificación enviado");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al enviar correo de verificación: " + e.getMessage());
+        }
     }
 
     // Método privado reutilizable para registrar logs

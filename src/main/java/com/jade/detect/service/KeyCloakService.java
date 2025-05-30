@@ -44,7 +44,7 @@ public class KeyCloakService implements IKeyCloakRepository {
     public List<UserRepresentation> searchUserByUsername(String username) {
         return KeyCloakProvider.getRealmResource()
                 .users()
-                .searchByUsername(username, true);
+                .searchByUsername(username, true); 
     }
 
 
@@ -62,7 +62,7 @@ public class KeyCloakService implements IKeyCloakRepository {
         userRepresentation.setLastName((userDTO.getLastName()));
         userRepresentation.setEmail(userDTO.getEmail());
         userRepresentation.setUsername((userDTO.getUsername()));
-        userRepresentation.setEmailVerified(true);
+        userRepresentation.setEmailVerified(false);
         userRepresentation.setEnabled(true);
 
         Response response = userResource.create(userRepresentation);
@@ -159,5 +159,11 @@ public class KeyCloakService implements IKeyCloakRepository {
             log.error("No se pudo obtener el usuario con ID: {}", id, e);
             throw new NotFoundException("Usuario no encontrado en Keycloak");
         }
+    }
+
+    public void sendVerificationEmail(String userId) {
+        KeyCloakProvider.getUserResource()
+            .get(userId)
+            .sendVerifyEmail();
     }
 }

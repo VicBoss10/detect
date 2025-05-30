@@ -13,5 +13,5 @@ public interface IKeyCloakRepository {
     void deleteUser (String userId);
     void updateUser (String userId, UserDTO userDTO);
     UserRepresentation findUserById(String keycloakId);
-
+    void sendVerificationEmail(String userId);
 }
